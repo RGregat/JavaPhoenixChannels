@@ -130,7 +130,7 @@ public class Socket {
 
     private TimerTask heartbeatTimerTask = null;
 
-    private final OkHttpClient httpClient = new OkHttpClient();
+    private OkHttpClient httpClient = new OkHttpClient();
 
     private final Set<IMessageCallback> messageCallbacks = Collections.newSetFromMap(new HashMap<IMessageCallback, Boolean>());
 
@@ -195,6 +195,10 @@ public class Socket {
             .replaceFirst("^wss:", "https:");
         final Request request = new Request.Builder().url(httpUrl).build();
         webSocket = httpClient.newWebSocket(request, wsListener);
+    }
+
+    public void setOkHttpClient(OkHttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
     public void disconnect() throws IOException {
