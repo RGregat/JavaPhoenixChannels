@@ -27,6 +27,7 @@ import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
+import sun.rmi.runtime.Log;
 
 public class Socket {
 
@@ -99,6 +100,7 @@ public class Socket {
                 triggerChannelError();
                 for (final IErrorCallback callback : errorCallbacks) {
                     callback.onError(t.getMessage());
+                    t.printStackTrace();
                 }
             } finally {
                 // Assume closed on failure
@@ -191,8 +193,10 @@ public class Socket {
         log.trace("connect");
         disconnect();
         // No support for ws:// or ws:// in okhttp. See https://github.com/square/okhttp/issues/1652
-        final String httpUrl = this.endpointUri.replaceFirst("^ws:", "http:")
-            .replaceFirst("^wss:", "https:");
+        /*final String httpUrl = this.endpointUri.replaceFirst("^ws:", "http:")
+            .replaceFirst("^wss:", "https:");*/
+        final String httpUrl = this.endpointUri;
+
         final Request request = new Request.Builder().url(httpUrl).build();
         webSocket = httpClient.newWebSocket(request, wsListener);
     }
