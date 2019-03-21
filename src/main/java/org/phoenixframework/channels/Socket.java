@@ -27,8 +27,10 @@ import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
+import sun.rmi.runtime.Log;
 
 public class Socket {
+
 
     public static final int RECONNECT_INTERVAL_MS = 5000;
     private static final Logger log = LoggerFactory.getLogger(Socket.class);
@@ -36,6 +38,8 @@ public class Socket {
     private final List<Channel> channels = new ArrayList<>();
     private final Set<IErrorCallback> errorCallbacks = Collections.newSetFromMap(new HashMap<IErrorCallback, Boolean>());
     private final int heartbeatInterval;
+    private TimerTask heartbeatTimerTask = null;
+    private OkHttpClient httpClient = new OkHttpClient();
     private final Set<IMessageCallback> messageCallbacks = Collections.newSetFromMap(new HashMap<IMessageCallback, Boolean>());
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final LinkedBlockingQueue<RequestBody> sendBuffer = new LinkedBlockingQueue<>();
@@ -49,8 +53,6 @@ public class Socket {
      */
     private final PhoenixWSListener wsListener = new PhoenixWSListener();
     private String endpointUri = null;
-    private TimerTask heartbeatTimerTask = null;
-    private OkHttpClient httpClient = new OkHttpClient();
     private boolean reconnectOnFailure = true;
     private TimerTask reconnectTimerTask = null;
     private int refNo = 1;
@@ -93,8 +95,7 @@ public class Socket {
         log.trace("connect");
         disconnect();
         // No support for ws:// or ws:// in okhttp. See https://github.com/square/okhttp/issues/1652
-        final String httpUrl = this.endpointUri.replaceFirst("^ws:", "http:")
-                .replaceFirst("^wss:", "https:");
+        final String httpUrl = this.endpointUri;
         final Request request = new Request.Builder().url(httpUrl).build();
         webSocket = httpClient.newWebSocket(request, wsListener);
     }
